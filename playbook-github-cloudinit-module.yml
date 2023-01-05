@@ -17,11 +17,11 @@
         mode: 0644
         state: touch
       loop:
-        - "/root/environmental_vars-cloudinit-module"
+        - "/root/environmental_vars-github-cloudinit-module"
 
-    - name: "some content for /root/environmental_vars-cloudinit-module"
+    - name: "some content for /root/environmental_vars-github-cloudinit-module"
       blockinfile:
-        path: "/root/environmental_vars-cloudinit-module"
+        path: "/root/environmental_vars-github-cloudinit-module"
         block: |
           $HOME = "{{ lookup('env','HOME') }}"
           $USER = "{{ lookup('env','USER') }}"
