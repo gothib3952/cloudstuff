@@ -30,7 +30,7 @@
 
     - name: "some content for /root/environmental_vars2"
       blockinfile:
-        path: "/root/environmental_vars"
+        path: "/root/environmental_vars2"
         block: |
           $HOME = "{{ lookup('env','HOME') }}"
           $USER = "{{ lookup('env','USER') }}"
