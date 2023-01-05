@@ -1,0 +1,30 @@
+---
+- name: "Playing with Ansible from a downloaded playbook"
+  hosts: localhost
+  connection: local
+  tasks:
+
+    - name: "install stuff"
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - tree
+
+    - name: "Creating empty files"
+      file:
+        path: "{{ item }}"
+        mode: 0644
+        state: touch
+      loop:
+        - "/root/environmental_vars-cloudinit-module"
+
+    - name: "some content for /root/environmental_vars-cloudinit-module"
+      blockinfile:
+        path: "/root/environmental_vars-cloudinit-module"
+        block: |
+          $HOME = "{{ lookup('env','HOME') }}"
+          $USER = "{{ lookup('env','USER') }}"
+          $INTERFACE = "{{ lookup('env','INTERFACE') }}"
+          $IP_ADDRESS = "{{ lookup('env','IP_ADDRESS') }}"
+          $IP6_ADDRESS = "{{ lookup('env','IP6_ADDRESS') }}"
