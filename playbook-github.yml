@@ -4,20 +4,11 @@
   connection: local
   tasks:
 
-    - name: "just execute a ls -alrt command"
-      shell: "ls -alrt"
-      register: result
-
-    - name: "Print environment variable"
-      debug:
-        var: result.stdout_lines
-
     - name: "install stuff"
       package:
         name: "{{ item }}"
         state: present
       loop:
-        - tree
         - yamllint
 
     - name: "Creating empty files"
@@ -26,11 +17,11 @@
         mode: 0644
         state: touch
       loop:
-        - "/root/environmental_vars2"
+        - "/root/environmental_vars-github-cronpull"
 
-    - name: "some content for /root/environmental_vars2"
+    - name: "some content for /root/environmental_vars-github-cronpull"
       blockinfile:
-        path: "/root/environmental_vars2"
+        path: "/root/environmental_vars-github-cronpull"
         block: |
           $HOME = "{{ lookup('env','HOME') }}"
           $USER = "{{ lookup('env','USER') }}"
