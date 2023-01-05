@@ -17,11 +17,11 @@
         mode: 0644
         state: touch
       loop:
-        - "/root/environmental_vars-github-cronpull"
+        - "/root/environmental_vars-github-ansiblepull"
 
-    - name: "some content for /root/environmental_vars-github-cronpull"
+    - name: "some content for /root/environmental_vars-github-ansiblepull"
       blockinfile:
-        path: "/root/environmental_vars-github-cronpull"
+        path: "/root/environmental_vars-github-ansiblepull"
         block: |
           $HOME = "{{ lookup('env','HOME') }}"
           $USER = "{{ lookup('env','USER') }}"
