@@ -1,0 +1,9 @@
+{
+    "editor.fontSize": 20,
+    "editor.cursorStyle": "block",
+    "editor.renderLineHighlight": "none",
+    "workbench.colorTheme": "Default Dark+",
+    "workbench.preferredDarkColorTheme": "Default Dark+",
+    "workbench.colorCustomizations": {"editor.background": "#000000"},
+    "terminal.integrated.minimumContrastRatio": 7
+}
