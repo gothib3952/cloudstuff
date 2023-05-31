@@ -38,12 +38,17 @@ type specimen2 struct{   // define a struct, can also be done in main, but then 
 var (                             // vars you can change, note: no code in this block!
 	msg        string = "hoi" // no single quotes allowed!
 	//msg      float32 = 3.14 // nope! No redefining
+	//msg      string = "bye" // not even the content!
 	i          int    = 39    // integer
 	unused_var int    = 53    // in this block: no error if not used anywhere
 	a_bool     bool   = true  // booleans have lowercase true/false
         no_fill    int            // in this block: no need to fill
 	res        int    = 13    // res is also used/declared in multiplyTwoNumbers() below, but scope differs
 	beetles    []*specimen2   // slice of pointers to specimen2's. Used in function AddSpecimen2()
+	man, woman = true, false  // type set automatically by initialization
+	p, q, r  int =  2, 3, 4   // all at once
+	s, t, u  = "foo", 3.14, false // last two combined. also works in function with :=
+	// v := 10                // nope! := only in function
 )
 
 func say(m string) {   // function, input only, still needs type
@@ -91,7 +96,7 @@ func main() {                     // main() is automatically started
 	//b = b + 0.1             // nope! b was implicitly typed an integer above
 	b = b + 10                // yup! add integer to integer
 	d := float64(12)          // explicitly typed
-	print(d, "\n")            // need to use var, else error "declared but not used" prints +1.200000e+001
+	print(d, "\n")            // need to use a var, else error "declared but not used" prints +1.200000e+001
 	//unused_var2 := 53       // nope! no unused vars outside the var block allowed
 	m, n := 7, 8              // look mom, both hands!
 	print(m, " ", n, "\n")    // print() needs explicit space an newline
@@ -115,6 +120,7 @@ func main() {                     // main() is automatically started
 	fmt.Printf("%[1]T %[2]v\n", pi_64, pi_64) // type and value
         fmt.Printf("%[1]b\n", b)  // printf the value as binary to stdout
         fmt.Printf("%[1]X\n", 31) // printf the value as (uppercase) hex to stdout
+	fmt.Printf("%X\n", 31)    // the [] index can also be omitted
 
 	s0 := strconv.FormatFloat(float64(pi), 'f', 2, 32) // convert float32 to string (FormatFloat needs float64)
 	print(s0, "\n")                                    // also rounded to 2 numbers after decimal point
@@ -136,6 +142,9 @@ func main() {                     // main() is automatically started
 	fmt.Printf("%[1]e\n", float_f4)     // ... print exponent style to stdout
 	f4_str := strconv.Itoa(f4)          // convert to string
 	fmt.Println("MaxInt = " + f4_str)   // print the actual number an int can be
+	unsigned_int1 := uint(float_f4)     // type conversion
+	fmt.Println(unsigned_int1)
+	fmt.Println("------------")
 
 	res = 13                              // fill empty var from var block, no colon needed because pre-declared
 	fmt.Println(res)                      // 13 (duh!)
