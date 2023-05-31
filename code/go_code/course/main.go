@@ -57,7 +57,7 @@ func unused_func(blah int) {   // unused functions: no error
 func multiplyTwoNumbers(x, y int) (res int) { // in and output both need to be declared
 	res = x * y                           // res var is declared in func definition on prev line.
 	return res                            // this res is different from var res from var block above
-}
+} // note: if you define a return variable, you could just do a naked 'return' statement to mean 'return res'
 
 func blab() {
 	fmt.Println("-------------------------")
