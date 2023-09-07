@@ -1,3 +1,3 @@
-module go_code
+module hello
 
 go 1.18
