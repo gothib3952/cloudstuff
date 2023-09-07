@@ -1,3 +1,3 @@
-module go_code
+module newton_sqroot
 
 go 1.18
