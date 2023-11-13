@@ -1,0 +1,89 @@
+lxc delete softhsm01
+lxc launch images:debian/12 softhsm01
+
+lxc shell softhsm01
+apt install -y less man softhsm2 opensc knot knot-dnssecutils knot-dnsutils
+
+echo "set mouse-=a" > ~/.vimrc
+
+usermod -G softhsm knot
+su - knot -s /bin/bash -c 'softhsm2-util --init-token --free --label knot --pin 0000 --so-pin 1234'
+su - knot -s /bin/bash -c 'pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --list-token-slots'
+
+vim /etc/knot/knot.conf
+------------------------------------------
+server:
+    rundir: "/run/knot"
+    user: knot:knot
+    automatic-acl: on
+    listen: [ 127.0.0.1@53, ::1@53 ]
+
+log:
+  - target: syslog
+    any: info
+
+database:
+    storage: "/var/lib/knot"
+
+keystore:
+   - id: SoftHSM
+     backend: pkcs11
+     config: "pkcs11:token=knot;pin-value=0000 /usr/lib/softhsm/libsofthsm2.so"
+     key-label: true
+
+policy:
+  - id: manual
+    manual: on
+    keystore: SoftHSM
+
+remote:
+
+template:
+  - id: default
+    storage: "/var/lib/knot"
+    file: "%s.zone"
+    dnssec-signing: on
+    dnssec-policy: manual
+
+zone:
+  - domain: example.com
+------------------------------------------
+knotc conf-check
+
+vim /var/lib/knot/example.com.zone
+----------------
+example.com.		600	IN	SOA	ns1.example.com. hostmaster.example.com. 1495 14400 3600 604800 300
+example.com.		600	IN	NS	ns1.example.com.
+ns1.example.com.	600	IN	A	127.0.0.1
+----------------
+chown knot:knot /var/lib/knot/example.com.zone
+kzonecheck -v --dnssec off /var/lib/knot/example.com.zone
+ 
+systemctl restart knot
+systemctl status knot
+journalctl -xeu knot.service
+ 
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 ksk=yes zsk=no'
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 ksk=no zsk=yes'
+su - knot -s /bin/bash -c 'pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --list-objects --pin 0000'
+
+keymgr example.com list
+keymgr -e example.com list
+ 
+knotc zone-reload example.com
+kzonecheck -v --dnssec on /var/lib/knot/example.com.zone
+cat /var/lib/knot/example.com.zone
+
+knotc zone-status
+knotc zone-read example.com @ SOA
+kdig @::1 +norec +dnssec +cd +multi soa example.com
+kdig @::1 +norec +dnssec +cd +multi dnskey example.com
+
+knotc zone-backup -b +backupdir /var/tmp/backup_example.com +journal example.com.
+vim /var/lib/knot/example.com.zone (make some edit, e.g. add www.example.com)
+knotc zone-reload example.com
+
+kdig @::1 +norec +dnssec +cd +multi soa example.com
+kdig @::1 +norec +dnssec +cd +multi www.example.com
+kdig @::1 +norec +dnssec +cd +multi nonexistant.example.com
+
