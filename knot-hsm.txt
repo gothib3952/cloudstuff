@@ -1,7 +1,7 @@
-lxc delete softhsm01
-lxc launch images:debian/12 softhsm01
+lxc delete knothsm01
+lxc launch images:debian/12 knothsm01
 
-lxc shell softhsm01
+lxc shell knothsm01
 apt install -y less man softhsm2 opensc knot knot-dnssecutils knot-dnsutils
 
 echo "set mouse-=a" > ~/.vimrc
