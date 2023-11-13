@@ -67,10 +67,11 @@ su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 k
 su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 ksk=no zsk=yes'
 su - knot -s /bin/bash -c 'pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --list-objects --pin 0000'
 
-keymgr example.com list
-keymgr -e example.com list
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list'
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list -e'
  
 knotc zone-reload example.com
+systemctl status knot
 kzonecheck -v --dnssec on /var/lib/knot/example.com.zone
 cat /var/lib/knot/example.com.zone
 
