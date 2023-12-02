@@ -1,0 +1,177 @@
+sudo snap install lxd
+sudo lxd init (make sensible and/or default choices)
+
+lxc image list
+lxc image list images: | grep debian/12
+lxc image info images:debian/12
+lxc image delete 
+
+lxc launch images:debian/12 nitro01 --vm -c limits.cpu=4 -c limits.memory=4GiB
+( lxc init images:debian/12 nitro01 --vm -c limits.cpu=4 -c limits.memory=4GiB
+( lxc config show --expanded nitro01
+( lxc config set nitro01 <tab> # see all config options
+( e.g. lxc config set nitro01 security.secureboot=false
+( e.g. lxc config device add nitro01 root disk pool=default path=/ size=12GB  # default disksize = 10G, ubuntu: all used, debian: 6G unpartitioned
+( lxc storage ls
+( lxc storage info default
+( lxc storage show default
+( lxc config device add nitro01 shared_disk disk source=/home/$USER/shared/ path=opt/shared && lxc config show --expanded nitro01
+( remove: lxc config device remove nitro01 shared_disk
+( 
+( cloud init hint: lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases/
+( cloud init hint: lxc launch ubuntu-minimal:22.04 --config=user.user-data="$(cat cloud-init.yml)" ubuntu-container
+(
+( lxc start nitro01
+( or: lxc delete nitro01
+
+
+lxc info --show-log nitro01
+lxc image info 5607c92dadb1
+sudo ls -al /var/snap/lxd/common/lxd/logs/nitro01
+lxc exec nitro01 -- df -h
+
+lxc shell nitro01
+
+Commands in VM:
+
+( Debian:
+( echo "set mouse-=a" > ~/.vimrc  (debian thing to make mouse copy-paste act normal)
+( apt install -y gdisk parted
+( gdisk /dev/sda -> d 2 -> n 2 -> first: default -> last: 8G -> 8300 -> w
+( partprobe
+( resize2fs /dev/sda2
+( gdisk /dev/sda -> n 3 -> first: default -> last: default -> 8200 -> w
+( partprobe
+( mkswap /dev/sda3 && swapon /dev/sda3
+
+=============================================================
+apt install -y podman curl jq man pipx
+pipx install pynitrokey
+pipx ensurepath
+(uitloggen && inloggen)
+
+podman pull docker.io/nitrokey/nethsm:testing
+podman run -d --name nethsm -ti -p8443:8443 docker.io/nitrokey/nethsm:testing  (if -p443:8443, you can do NETHSM_HOST="127.0.0.1" or real ip)
+(podman exec nethsm ip a
+export NETHSM_HOST="127.0.0.1:8443"
+curl --insecure --silent https://${NETHSM_HOST}/api/v1/info | jq .
+{
+  "vendor": "Nitrokey GmbH",
+  "product": "NetHSM"
+}
+
+https://nethsmdemo.nitrokey.com/api_docs/index.html
+curl --insecure --silent https://${NETHSM_HOST}/api/v1/health/state | jq .
+ {
+  "state": "Unprovisioned"
+ }
+curl --insecure --silent https://${NETHSM_HOST}/api/v1/health/ready | jq .
+ {
+  "message": "Service not available"
+ }
+
+nitropy --help
+export NETHSM_HOST="127.0.0.1:8443"
+export ALLOW_ROOT=1
+nitropy nethsm --no-verify-tls --host $NETHSM_HOST provision
+Unlock password -> unlockpass32768
+Admin password -> adminpass32768
+ NetHSM 10.88.0.2:8443 provisioned
+curl --insecure --silent https://${NETHSM_HOST}/api/v1/health/state | jq .
+ {
+  "state": "Operational"
+ }
+nitropy nethsm --no-verify-tls --host $NETHSM_HOST info
+ Command line tool to interact with Nitrokey devices 0.4.43
+ Host:    127.0.0.1:8443
+ Vendor:  Nitrokey GmbH
+ Product: NetHSM
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST system-info
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-config
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST state
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST unlock
+Requires role Administrator:
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST generate-key --type EC_P256 --mechanism ECDSA_Signature --length 256 --key-id myFirstKey
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST list-keys
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key | openssl ec -pubin -text
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST shutdown
+
+
+Requires role Operator:
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST add-user --real-name "Nitrokey Operator" --role Operator --user-id operator
+ operatorpass32768
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST random 4
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST list-keys
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST get-key myFirstKey
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST get-key myFirstKey --public-key
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST get-key myFirstKey --public-key > public.pem
+openssl ec -pubin -in public.pem -noout -text
+echo 'NetHSM rulez!' > data
+openssl dgst -sha256 -binary data | base64 > data.digest
+nitropy nethsm --no-verify-tls --username operator --password operatorpass32768 --host $NETHSM_HOST sign -k myFirstKey -m ECDSA -d "$(cat data.digest)" | base64 -d > data.sig
+cat data.sig | base64
+openssl dgst -sha256 -verify public.pem -signature data.sig data
+
+Rquires role Metrics:
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST add-user --real-name "Nitrokey Metrics" --role Metrics --user-id metrics
+ metricspass32768
+nitropy nethsm --no-verify-tls --username metrics --password metricspass32768 --host $NETHSM_HOST metrics
+
+Rquires role Backup:
+nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST add-user --real-name "Nitrokey Backup" --role Backup --user-id backup
+ backuppass32768
+nitropy nethsm --no-verify-tls --username backup --password backuppass32768 --host $NETHSM_HOST backup /tmp/nethsm-backup
+nitropy nethsm --no-verify-tls --username backup --password backuppass32768 --host $NETHSM_HOST restore /tmp/nethsm-backup
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+PKCS11
+apt install -y opensc
+wget https://github.com/Nitrokey/nethsm-pkcs11/releases/download/1.0.0/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so
+mkdir /usr/local/lib/nethsm
+mv nethsm-pkcs11-v1.0.0-x86_64-debian.12.so /usr/local/lib/nethsm
+chmod 755 /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so
+
+nitropy nethsm --no-verify-tls --username admin --host 10.41.12.164:8443 get-config --certificate > nethsm.crt
+vim nethsm.crt (remove crud and line up to left margin, hint: use vi 'dw')
+openssl x509 -in nethsm.crt -fingerprint -sha256 -noout
+ sha256 Fingerprint=E9:EC:9F:99:2E:E6:7B:BE:1B:F5:D0:3C:D3:41:E2:9D:7B:DF:3E:21:EE:22:73:8D:7D:32:F2:AA:EC:84:81:36
+
+mkdir /usr/local/etc/nitrokey
+vim /usr/local/etc/nitrokey/p11nethsm.conf
+-------------------------------------------------------------------------------
+enable_set_attribute_value: false
+log_file: /var/log/p11nethsm.log
+log_level: Debug
+
+slots:
+  - label: nitro01HSM
+    description: nitro01HSM (docker instance on nitro01HSM)
+
+    # Users connecting to the NetHSM server
+    operator:
+      username: "operator"
+    administrator:
+      username: "admin"
+      password: "adminpass32768"
+
+    # List the NetHSM instances
+    instances:
+      - url: "https://10.41.12.164:8443/api/v1"   # URL to reach the server
+        # When the NetHSM has a self-signed certificate, it can be verified by a sha256 fingerprint of the NetHSM's certificate:
+        sha256_fingerprints:
+          - "E9:EC:9F:99:2E:E6:7B:BE:1B:F5:D0:3C:D3:41:E2:9D:7B:DF:3E:21:EE:22:73:8D:7D:32:F2:AA:EC:84:81:36"
+-------------------------------------------------------------------------------
+(see https://docs.nitrokey.com/nethsm/pkcs11-setup.html for more (password) options)
+
+pkcs11-tool --module /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so --list-token-slots
+pkcs11-tool --module /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so -p operatorpass32768 --list-objects
+
+apt install -y knot knot-dnssecutils knot-dnsutils less
+chown knot:knot /var/log/p11nethsm.log
+vim /etc/knot/knot.conf
+ see: https://github.com/gothib3952/cloudstuff/blob/main/knot-hsm.txt
+ config: "pkcs11:token=nitro01HSM;pin-value=operatorpass32768 /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so"
+ also: rename the keystore and the keystore nam in the policy
+Follow the rest of the directions in this guide
