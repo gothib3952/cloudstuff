@@ -99,6 +99,7 @@ nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST unlock
 Requires role Administrator:
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST generate-key --type EC_P256 --mechanism ECDSA_Signature --length 256 --key-id myFirstKey
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST list-keys
+OR: nitropy nethsm $NETHSMOPTS --username admin --password $ADMINPASS list-keys
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key | openssl ec -pubin -text
