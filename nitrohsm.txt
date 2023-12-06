@@ -136,7 +136,7 @@ nitropy nethsm --no-verify-tls --username backup --password backuppass32768 --ho
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 PKCS11
-apt install -y opensc
+apt install -y opensc wget
 wget https://github.com/Nitrokey/nethsm-pkcs11/releases/download/1.0.0/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so
 mkdir /usr/local/lib/nethsm
 mv nethsm-pkcs11-v1.0.0-x86_64-debian.12.so /usr/local/lib/nethsm
