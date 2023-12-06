@@ -105,6 +105,7 @@ nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFi
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST get-key myFirstKey --public-key | openssl ec -pubin -text
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST shutdown
+TODO: log stuff (journalctl? level debug?)
 
 
 Requires role Operator:
