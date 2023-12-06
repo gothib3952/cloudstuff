@@ -45,6 +45,7 @@ Commands in VM:
 ( mkswap /dev/sda3 && swapon /dev/sda3
 
 =============================================================
+Docu: https://docs.nitrokey.com/nethsm/administration
 apt install -y podman curl jq man pipx
 pipx install pynitrokey
 pipx ensurepath
