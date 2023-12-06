@@ -11,7 +11,7 @@ lxc launch images:debian/12 nitro01 --vm -c limits.cpu=4 -c limits.memory=4GiB
 ( lxc config show --expanded nitro01
 ( lxc config set nitro01 <tab> # see all config options
 ( e.g. lxc config set nitro01 security.secureboot=false
-( e.g. lxc config device add nitro01 root disk pool=default path=/ size=12GB  # default disksize = 10G, ubuntu: all used, debian: 6G unpartitioned
+( e.g. lxc config device add nitro01 root disk pool=default path=/ size=12GB  # default disksize = 10G, ubuntu: all used, debian: 6G unpartitioned, pool could also be 'lxdpool'
 ( lxc storage ls
 ( lxc storage info default
 ( lxc storage show default
