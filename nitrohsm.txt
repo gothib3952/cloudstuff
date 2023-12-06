@@ -129,6 +129,8 @@ nitropy nethsm --no-verify-tls --username metrics --password metricspass32768 --
 Rquires role Backup:
 nitropy nethsm --no-verify-tls --username admin --host $NETHSM_HOST add-user --real-name "Nitrokey Backup" --role Backup --user-id backup
  backuppass32768
+nitropy nethsm $NETHSMOPTS --username admin --password $ADMINPASS set-backup-passphrase
+ backuppass32768
 nitropy nethsm --no-verify-tls --username backup --password backuppass32768 --host $NETHSM_HOST backup /tmp/nethsm-backup
 nitropy nethsm --no-verify-tls --username backup --password backuppass32768 --host $NETHSM_HOST restore /tmp/nethsm-backup
 
