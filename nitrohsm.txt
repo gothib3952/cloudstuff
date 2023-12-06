@@ -150,6 +150,7 @@ openssl x509 -in nethsm.crt -fingerprint -sha256 -noout
 
 mkdir /usr/local/etc/nitrokey
 vim /usr/local/etc/nitrokey/p11nethsm.conf
+chmod 640 /usr/local/etc/nitrokey/p11nethsm.conf
 -------------------------------------------------------------------------------
 enable_set_attribute_value: false
 log_file: /var/log/p11nethsm.log
@@ -179,7 +180,8 @@ pkcs11-tool --module /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12
 pkcs11-tool --module /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so -p operatorpass32768 --list-objects
 
 apt install -y knot knot-dnssecutils knot-dnsutils less
-chown knot:knot /var/log/p11nethsm.log
+chown root:knot /usr/local/etc/nitrokey/p11nethsm.conf
+touch /var/log/p11nethsm.log && chown knot:knot /var/log/p11nethsm.log
 vim /etc/knot/knot.conf
  see: https://github.com/gothib3952/cloudstuff/blob/main/knot-hsm.txt
  config: "pkcs11:token=nitro01HSM;pin-value=operatorpass32768 /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so"
