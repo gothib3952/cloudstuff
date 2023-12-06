@@ -73,6 +73,11 @@ curl --insecure --silent https://${NETHSM_HOST}/api/v1/health/ready | jq .
 nitropy --help
 export NETHSM_HOST="127.0.0.1:8443"
 export ALLOW_ROOT=1
+export ADMINPASS="adminpass32768"
+export UNLOCKPASS="unlockpass32768"
+export OPERATORPASS="operatorpass32768"
+export METRICSPASS="metricspass32768"
+export BACKUPPASS="backuppass32768"
 nitropy nethsm --no-verify-tls --host $NETHSM_HOST provision
 Unlock password -> unlockpass32768
 Admin password -> adminpass32768
