@@ -1,0 +1,74 @@
+server:
+    rundir: "/run/knot"
+    user: knot:knot
+    automatic-acl: on
+    listen: [ 127.0.0.1@53, ::1@53 ]
+
+log:
+  - target: syslog
+    any: info
+
+database:
+    storage: "/var/lib/knot"
+
+keystore:
+   - id: NetHSM
+     backend: pkcs11
+     config: "pkcs11:token=nitro01HSM;pin-value=operatorpass32768 /usr/local/lib/nethsm/nethsm-pkcs11-v1.0.0-x86_64-debian.12.so"
+     key-label: true
+
+submission:
+  - id: unsafe
+    timeout: 10s
+
+policy:
+  - id: automatic-fast-nethsm
+    manual: off
+    keystore: NetHSM
+    algorithm: ecdsap256sha256
+    ksk-lifetime: 0
+    zsk-lifetime: 30m
+    propagation-delay: 2s
+    delete-delay: 10m
+    dnskey-ttl: 300s
+    zone-max-ttl: 300s
+    rrsig-lifetime: 15m
+    rrsig-refresh: 7m
+    rrsig-pre-refresh: 3m
+    ksk-submission: unsafe
+    cds-cdnskey-publish: none
+  - id: automatic-nethsm
+    manual: off
+    keystore: NetHSM
+    algorithm: ecdsap256sha256
+    dnskey-ttl: 30m
+    ksk-lifetime: 0
+    zsk-lifetime: 90d
+    propagation-delay: 2h
+    delete-delay: 14d
+    zone-max-ttl: 30m
+    rrsig-lifetime: 14d
+    rrsig-refresh: 8d
+    rrsig-pre-refresh: 5h
+    reproducible-signing: on
+    ksk-submission: unsafe
+    cds-cdnskey-publish: none
+    nsec3: on
+    nsec3-iterations: 0
+    nsec3-opt-out: off
+    nsec3-salt-length: 0
+    nsec3-salt-lifetime: 90d
+
+remote:
+
+template:
+  - id: default
+    storage: "/var/lib/knot/zones"
+    file: "%s.zone"
+    dnssec-signing: on
+    dnssec-policy: automatic-fast-nethsm
+
+zone:
+  - domain: example.com
+  - domain: amsterdam
+    dnssec-policy: automatic-nethsm
