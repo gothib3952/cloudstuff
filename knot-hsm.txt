@@ -51,6 +51,12 @@ policy:
     rrsig-pre-refresh: 3m
     ksk-submission: unsafe
     cds-cdnskey-publish: none
+    nsec3: on
+    nsec3-iterations: 0
+    nsec3-opt-out: off
+    nsec3-salt-length: 8
+    nsec3-salt-lifetime: -1
+    signing-threads: 12
   - id: manual
     manual: on
     keystore: SoftHSM
