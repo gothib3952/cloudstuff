@@ -74,6 +74,8 @@ zone:
   - domain: example.com
     dnssec-policy: manual
   - domain: example.net
+    #journal-max-usage: 3G  (default 100M)
+    journal-content: none
 ------------------------------------------
 knotc conf-check
 
