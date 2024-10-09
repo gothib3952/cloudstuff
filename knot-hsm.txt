@@ -97,8 +97,8 @@ su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 k
 su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com. generate algorithm=13 ksk=no zsk=yes'
 su - knot -s /bin/bash -c 'pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so --list-objects --pin 0000'
 
-su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list'
-su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list -e'
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list iso'
+su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list iso -e'
  
 knotc zone-reload example.com
 systemctl status knot
