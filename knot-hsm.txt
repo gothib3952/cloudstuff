@@ -105,6 +105,7 @@ su - knot -s /bin/bash -c '/usr/sbin/keymgr example.com list iso -e'
 knotc zone-reload example.com
 systemctl status knot
 kzonecheck -v --dnssec on /var/lib/knot/example.com.zone
+kzonesign --verify example.com
 cat /var/lib/knot/example.com.zone
 
 knotc zone-status
